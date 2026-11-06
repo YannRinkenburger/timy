@@ -88,7 +88,13 @@ function initProjects() {
   wireEmojiPreview('edit-proj-icon', 'edit-proj-icon-preview', '📚');
 
   const sel = document.getElementById('task-project');
-  projects.forEach(project => {
+  const sorted = [...projects].sort((a, b) => {
+    if (!a.deadline && !b.deadline) return 0;
+    if (!a.deadline) return 1;
+    if (!b.deadline) return -1;
+    return new Date(a.deadline) - new Date(b.deadline);
+  });
+  sorted.forEach(project => {
     renderProjectCard(project);
     const opt = document.createElement('option');
     opt.value = project.name;

@@ -12,6 +12,8 @@
   padding: 20px;
   cursor: pointer;
   transition: border-color 0.15s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
 }
 .project-card:hover {
   border-color: var(--accent);
@@ -31,7 +33,7 @@
   padding: 3px 10px; border-radius: 20px;
 }
 .project-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
-.project-card p  { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; }
+.project-card p  { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; flex: 1; }
 
 .project-progress-bar {
   height: 4px; background: var(--surface-3);
