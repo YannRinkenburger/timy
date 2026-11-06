@@ -1,0 +1,28 @@
+:root {
+  /* Backgrounds — Dark Mode, Schwarz/Grau */
+  --bg:        #111111;          /* Black */
+  --surface:   #1a1a1a;          /* dunkelgraue Karten */
+  --surface-2: #222222;
+  --surface-3: #2a2a2a;
+  --border:    #333333;
+
+  /* Accent — Orange als Primär */
+  --accent:    #de6d20;          /* Orange */
+  --accent-2:  #e8894a;          /* Orange aufgehellt */
+
+  /* Status-Farben */
+  --accent-green:  #6aad74;      /* gedämpftes Grün (nur für "low prio"-Indikator) */
+  --accent-orange: #de6d20;      /* Orange */
+  --accent-red:    #c0392b;      /* Rot */
+  --accent-blue:   #5c85a0;      /* Blaugrau */
+
+  /* Text */
+  --text:       #f0efec;         /* fast White, leicht warm */
+  --text-muted: #9a9a9a;         /* mittleres Grau */
+  --text-faint: #515151;         /* Dark Grey */
+
+  /* Tags */
+  --tag-uni:    #e05555;           /* Rot */
+  --tag-work:   #5c85a0;           /* Blau */
+  --tag-privat: #8c8c8c;           /* Grau */
+}

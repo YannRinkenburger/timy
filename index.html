@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>timy</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/today.css" />
+  <link rel="stylesheet" href="css/projects.css" />
+  <link rel="stylesheet" href="css/board.css" />
+  <link rel="stylesheet" href="css/timeline.css" />
+  <link rel="stylesheet" href="css/modals.css" />
+</head>
+<body>
+
+<!-- TODAY OVERLAY -->
+<div class="today-overlay" id="todayOverlay">
+  <div class="today-modal">
+    <div class="today-header">
+      <div>
+        <h2>Guten Morgen! ☀️</h2>
+      </div>
+      <button class="today-close" onclick="closeToday()">×</button>
+    </div>
+    <div class="today-date" id="today-date"></div>
+
+    <div class="today-summary">
+      <div class="today-stat">
+        <div class="today-stat-val" id="today-count">0</div>
+        <div class="today-stat-label">Aufgaben</div>
+      </div>
+      <div class="today-stat">
+        <div class="today-stat-val" id="today-time">0h</div>
+        <div class="today-stat-label">Geschätzte Zeit</div>
+      </div>
+      <div class="today-stat">
+        <div class="today-stat-val" id="today-deadlines">0</div>
+        <div class="today-stat-label">Deadlines bald</div>
+      </div>
+    </div>
+
+    <div class="today-tasks" id="today-tasks"></div>
+
+    <div class="today-cta">
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:1rem" onclick="closeToday()">Los geht's →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE PROJECT MODAL -->
+<div class="modal-overlay" id="createProjectOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Neues Projekt</h2>
+      <button class="modal-close" onclick="closeCreateProject()">×</button>
+    </div>
+    <form id="createProjectForm" onsubmit="submitProject(event)">
+      <div class="modal-field">
+        <label>Projektname *</label>
+        <input type="text" id="proj-name" placeholder="z.B. Softwaretechnik" required />
+      </div>
+      <div class="modal-field">
+        <label>Typ *</label>
+        <select id="proj-type" required>
+          <option value="">– auswählen –</option>
+          <option value="Uni">Uni</option>
+          <option value="SAP">SAP</option>
+          <option value="Privat">Privat</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Icon</label>
+        <div class="emoji-input-row">
+          <div class="emoji-preview" id="proj-icon-preview">📚</div>
+          <input type="text" id="proj-icon" placeholder="Emoji eingeben oder hier klicken…" autocomplete="off" />
+        </div>
+        <span class="field-hint">Tipp: <kbd>Win + .</kbd> oder <kbd>⌘ + Ctrl + Space</kbd> für den Emoji-Picker</span>
+      </div>
+      <div class="modal-field">
+        <label>Beschreibung</label>
+        <textarea id="proj-desc" placeholder="Kurze Beschreibung, Semester, Ziele…"></textarea>
+      </div>
+      <div class="modal-field">
+        <label>Deadline</label>
+        <input type="date" id="proj-deadline" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeCreateProject()">Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Projekt erstellen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CREATE TASK MODAL -->
+<div class="modal-overlay" id="createTaskOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Neue Aufgabe</h2>
+      <button class="modal-close" onclick="closeCreateTask()">×</button>
+    </div>
+    <form id="createTaskForm" onsubmit="submitTask(event)">
+      <div class="modal-field">
+        <label>Titel *</label>
+        <input type="text" id="task-title" placeholder="z.B. Übungsblatt 6 bearbeiten" required />
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Projekt</label>
+          <select id="task-project">
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Spalte</label>
+          <select id="task-column">
+            <option value="Backlog">Backlog</option>
+            <option value="To Do">To Do</option>
+            <option value="In Bearbeitung">In Bearbeitung</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Zeitschätzung</label>
+          <div class="input-row">
+            <input type="number" id="task-time" placeholder="2" min="0.25" step="0.25" />
+            <span class="input-suffix">Stunden</span>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Deadline</label>
+          <input type="date" id="task-deadline" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeCreateTask()">Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Aufgabe erstellen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PROJECT MODAL -->
+<div class="modal-overlay" id="editProjectOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Projekt bearbeiten</h2>
+      <button class="modal-close" onclick="closeEditProject()">×</button>
+    </div>
+    <form id="editProjectForm" onsubmit="submitEditProject(event)">
+      <input type="hidden" id="edit-proj-id" />
+      <div class="modal-field">
+        <label>Projektname *</label>
+        <input type="text" id="edit-proj-name" required />
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Typ *</label>
+          <select id="edit-proj-type" required>
+            <option value="Uni">Uni</option>
+            <option value="SAP">SAP</option>
+            <option value="Privat">Privat</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Icon</label>
+          <div class="emoji-input-row">
+            <div class="emoji-preview" id="edit-proj-icon-preview">📚</div>
+            <input type="text" id="edit-proj-icon" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Beschreibung</label>
+        <textarea id="edit-proj-desc"></textarea>
+      </div>
+      <div class="modal-field">
+        <label>Deadline</label>
+        <input type="date" id="edit-proj-deadline" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeEditProject()">Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT TASK MODAL -->
+<div class="modal-overlay" id="editTaskOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Aufgabe bearbeiten</h2>
+      <button class="modal-close" onclick="closeEditTask()">×</button>
+    </div>
+    <form id="editTaskForm" onsubmit="submitEditTask(event)">
+      <input type="hidden" id="edit-task-col" />
+      <input type="hidden" id="edit-task-idx" />
+      <div class="modal-field">
+        <label>Titel *</label>
+        <input type="text" id="edit-task-title" required />
+      </div>
+      <div class="modal-field">
+        <label>Spalte</label>
+        <select id="edit-task-column">
+          <option value="Backlog">Backlog</option>
+          <option value="To Do">To Do</option>
+          <option value="In Bearbeitung">In Bearbeitung</option>
+          <option value="Erledigt">Erledigt</option>
+        </select>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Zeitschätzung</label>
+          <div class="input-row">
+            <input type="number" id="edit-task-time" min="0.25" step="0.25" />
+            <span class="input-suffix">Stunden</span>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Deadline</label>
+          <input type="date" id="edit-task-deadline" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeEditTask()">Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Wirklich löschen?</h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Abbrechen</button>
+      <button class="btn-danger" id="confirm-ok">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ti<span>my</span></div>
+  <button class="nav-tab active" onclick="showPage('projects')">Projekte</button>
+  <button class="nav-tab" onclick="showPage('board')">Board</button>
+  <button class="nav-tab" onclick="showPage('timeline')">Woche</button>
+  <div class="nav-avatar">YR</div>
+</nav>
+
+<main>
+
+  <!-- PROJECTS PAGE -->
+  <div class="page active" id="page-projects">
+    <div class="page-header">
+      <div>
+        <h1>Deine Projekte</h1>
+        <p>Alle laufenden Vorlesungen, Praxisphasen & Vorhaben im Überblick</p>
+      </div>
+      <button class="btn btn-primary" onclick="openCreateProject()">+ Projekt</button>
+    </div>
+
+    <div class="project-grid">
+      <div class="add-project-card" onclick="openCreateProject()">
+        <div class="plus">+</div>
+        <span>Projekt hinzufügen</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOARD PAGE -->
+  <div class="page" id="page-board">
+    <div class="board-header">
+      <button class="board-back" id="board-back-btn" onclick="showPage('projects')">← Projekte</button>
+      <div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px">
+          <span class="project-type-badge tag-uni" style="padding:2px 8px;border-radius:20px">Uni</span>
+        </div>
+        <span class="board-title"></span>
+      </div>
+      <button class="btn btn-primary" style="margin-left:auto" onclick="openCreateTask('To Do')">+ Aufgabe</button>
+    </div>
+
+    <div class="kanban-columns">
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">
+            <div class="col-dot" style="background:var(--text-faint)"></div>
+            Backlog
+          </div>
+          <span class="col-count" id="count-backlog">0</span>
+        </div>
+        <div class="kanban-cards" id="col-backlog"></div>
+        <button class="kanban-add" onclick="openCreateTask('Backlog')">+ Aufgabe</button>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">
+            <div class="col-dot" style="background:var(--accent-blue)"></div>
+            To Do
+          </div>
+          <span class="col-count" id="count-todo">0</span>
+        </div>
+        <div class="kanban-cards" id="col-todo"></div>
+        <button class="kanban-add" onclick="openCreateTask('To Do')">+ Aufgabe</button>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">
+            <div class="col-dot" style="background:var(--accent-orange)"></div>
+            In Bearbeitung
+          </div>
+          <span class="col-count" id="count-inprogress">0</span>
+        </div>
+        <div class="kanban-cards" id="col-inprogress"></div>
+        <button class="kanban-add" onclick="openCreateTask('In Bearbeitung')">+ Aufgabe</button>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">
+            <div class="col-dot" style="background:var(--accent-green)"></div>
+            Erledigt
+          </div>
+          <span class="col-count" id="count-done">0</span>
+        </div>
+        <div class="kanban-cards" id="col-done"></div>
+        <button class="kanban-add" onclick="openCreateTask('Erledigt')">+ Aufgabe</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIMELINE PAGE -->
+  <div class="page" id="page-timeline">
+    <div class="page-header">
+      <div>
+        <h1>Wochenüberblick</h1>
+        <p id="timeline-subtitle"></p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="shiftWeek(-1)">← Vorherige</button>
+        <button class="btn btn-ghost" onclick="jumpToToday()">Heute</button>
+        <button class="btn btn-ghost" onclick="shiftWeek(1)">Nächste →</button>
+      </div>
+    </div>
+
+    <div class="timeline-week" id="timeline-week"></div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:16px">
+      <h2 style="font-size:1rem;font-weight:600;margin-bottom:16px">Kommende Deadlines</h2>
+      <div id="timeline-deadlines" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- utils muss vor projects.js und board.js geladen werden -->
+<script src="js/utils.js"></script>
+<script src="js/confirm.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/board.js"></script>
+<script src="js/timeline.js"></script>
+<script src="js/today.js"></script>
+<script>
+  initProjects();
+  renderTodayModal();
+</script>
+
+</body>
+</html>

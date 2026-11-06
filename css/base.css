@@ -1,0 +1,51 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-header h1 { font-size: 1.5rem; font-weight: 700; }
+.page-header p { font-size: 0.875rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Buttons */
+.btn {
+  padding: 10px 20px; border-radius: 10px; font-size: 0.875rem;
+  font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
+}
+.btn-primary {
+  background: var(--accent); color: white;
+}
+.btn-primary:hover { background: var(--accent-2); }
+.btn-ghost {
+  background: var(--surface-2); color: var(--text-muted);
+}
+.btn-ghost:hover { background: var(--surface-3); color: var(--text); }
+
+/* Tags */
+.tag-uni    { background: rgba(224,85,85,0.15);  color: var(--tag-uni); }
+.tag-work   { background: rgba(92,133,160,0.15); color: var(--tag-work); }
+.tag-privat { background: rgba(140,140,140,0.15); color: var(--tag-privat); }
+
+@media (max-width: 700px) {
+  main { padding: 16px; }
+}
