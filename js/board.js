@@ -13,6 +13,8 @@ const COUNT_ID_MAP = {
 
 let _dragCol = null;
 let _dragIdx = null;
+let _dragProjectId = null;
+const _dropControllers = new Map();
 
 // ---- Deadline-Status ----
 function taskDeadlineStatus(dateRaw) {
@@ -65,12 +67,17 @@ function renderAllBoard() {
     const sorted = sortByDeadline(merged[col]);
     sorted.forEach((task, idx) => colEl.appendChild(buildAllTaskCard(task, col, idx)));
     if (countEl) countEl.textContent = sorted.length;
+    wireDropZone(colEl.closest('.kanban-col') || colEl, col);
   });
 }
 
 function buildAllTaskCard(task, col, idx) {
   const card = document.createElement('div');
   card.className = 'kanban-card';
+  card.draggable = true;
+  card.dataset.col = col;
+  card.dataset.idx = idx;
+  card.dataset.projectId = task._projectId;
   if (task.done) card.style.opacity = '0.5';
 
   const titleStyle = task.done ? 'style="text-decoration:line-through"' : '';
@@ -93,6 +100,19 @@ function buildAllTaskCard(task, col, idx) {
       ${projectBadge}
     </div>
   `;
+
+  card.addEventListener('dragstart', e => {
+    _dragCol = col;
+    _dragIdx = idx;
+    _dragProjectId = task._projectId;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.kanban-cards, .kanban-col').forEach(c => c.classList.remove('drag-over'));
+  });
+
   return card;
 }
 
@@ -117,7 +137,7 @@ function renderBoard(projectId) {
     const colTasks = projectTasks[col] || [];
     colTasks.forEach((task, idx) => colEl.appendChild(buildTaskCard(task, col, idx)));
     if (countEl) countEl.textContent = colTasks.length;
-    wireDropZone(colEl, col);
+    wireDropZone(colEl.closest('.kanban-col') || colEl, col);
   });
 
   const sel = document.getElementById('task-project');
@@ -147,8 +167,8 @@ function buildTaskCard(task, col, idx) {
 
   card.innerHTML = `
     <div class="kanban-card-actions">
-      <button class="kanban-card-action" title="Bearbeiten" onclick="openEditTask('${col}', ${idx})">✏</button>
-      <button class="kanban-card-action danger" title="Löschen" onclick="confirmDeleteTask('${col}', ${idx})">✕</button>
+      <button class="kanban-card-action" draggable="false" title="Bearbeiten" onclick="openEditTask('${col}', ${idx})">✏</button>
+      <button class="kanban-card-action danger" draggable="false" title="Löschen" onclick="confirmDeleteTask('${col}', ${idx})">✕</button>
     </div>
     <div class="kanban-card-title" ${titleStyle}>${escHtml(task.title)}</div>
     <div class="kanban-card-meta">
@@ -159,12 +179,13 @@ function buildTaskCard(task, col, idx) {
   card.addEventListener('dragstart', e => {
     _dragCol = col;
     _dragIdx = idx;
+    _dragProjectId = null;
     card.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
   });
   card.addEventListener('dragend', () => {
     card.classList.remove('dragging');
-    document.querySelectorAll('.kanban-cards').forEach(c => c.classList.remove('drag-over'));
+    document.querySelectorAll('.kanban-cards, .kanban-col').forEach(c => c.classList.remove('drag-over'));
   });
 
   return card;
@@ -172,30 +193,44 @@ function buildTaskCard(task, col, idx) {
 
 // ---- Drop-Zone ----
 function wireDropZone(colEl, col) {
+  if (_dropControllers.has(col)) _dropControllers.get(col).abort();
+  const ac = new AbortController();
+  _dropControllers.set(col, ac);
+  const sig = { signal: ac.signal };
+
   colEl.addEventListener('dragover', e => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     colEl.classList.add('drag-over');
-  });
+  }, sig);
   colEl.addEventListener('dragleave', e => {
     if (!colEl.contains(e.relatedTarget)) colEl.classList.remove('drag-over');
-  });
+  }, sig);
   colEl.addEventListener('drop', e => {
     e.preventDefault();
     colEl.classList.remove('drag-over');
     if (_dragCol === null || _dragIdx === null) return;
     if (_dragCol === col) return;
 
-    const task = tasks[currentProjectId][_dragCol].splice(_dragIdx, 1)[0];
-    if (!tasks[currentProjectId][col]) tasks[currentProjectId][col] = [];
-    tasks[currentProjectId][col].push(task);
+    const projectId = currentProjectId || _dragProjectId;
+    if (!projectId) return;
+
+    const task = tasks[projectId][_dragCol].splice(_dragIdx, 1)[0];
+    if (!tasks[projectId][col]) tasks[projectId][col] = [];
+    tasks[projectId][col].push(task);
     saveData();
 
     const affected = [_dragCol, col];
     _dragCol = null;
     _dragIdx = null;
-    affected.forEach(refreshColumn);
-  });
+    _dragProjectId = null;
+
+    if (currentProjectId) {
+      affected.forEach(refreshColumn);
+    } else {
+      renderAllBoard();
+    }
+  }, sig);
 }
 
 // ---- Spalte neu rendern ----
@@ -206,7 +241,7 @@ function refreshColumn(col) {
   const colTasks = (tasks[currentProjectId] || {})[col] || [];
   colTasks.forEach((task, idx) => colEl.appendChild(buildTaskCard(task, col, idx)));
   if (countEl) countEl.textContent = colTasks.length;
-  wireDropZone(colEl, col);
+  wireDropZone(colEl.closest('.kanban-col') || colEl, col);
 
   const project = projects.find(p => p.id === currentProjectId);
   if (project) {

@@ -97,7 +97,8 @@
   opacity: 0.4;
   cursor: grabbing;
 }
-.kanban-cards.drag-over {
+.kanban-cards.drag-over,
+.kanban-col.drag-over {
   background: rgba(222,109,32,0.06);
   outline: 2px dashed var(--accent);
   outline-offset: -4px;
