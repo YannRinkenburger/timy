@@ -13,6 +13,11 @@ function showPage(id, skipBoardRender) {
   }
 }
 
+function refreshApp(btn) {
+  btn.classList.add('spinning');
+  setTimeout(() => location.reload(), 300);
+}
+
 function closeToday() {
   document.getElementById('todayOverlay').style.display = 'none';
 }

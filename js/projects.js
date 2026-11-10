@@ -1,5 +1,5 @@
 const TYPE_CONFIG = {
-  'Uni':    { tagClass: 'tag-uni',    color: 'var(--tag-uni)',    iconBg: 'rgba(224,85,85,0.15)',   defaultIcon: '📚' },
+  'Uni':    { tagClass: 'tag-uni',    color: 'var(--tag-uni)',    iconBg: 'rgba(222,109,32,0.15)',  defaultIcon: '📚' },
   'SAP':    { tagClass: 'tag-work',   color: 'var(--tag-work)',   iconBg: 'rgba(92,133,160,0.15)',  defaultIcon: '💼' },
   'Privat': { tagClass: 'tag-privat', color: 'var(--tag-privat)', iconBg: 'rgba(140,140,140,0.15)', defaultIcon: '🏠' },
 };

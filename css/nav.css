@@ -1,8 +1,9 @@
 nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 16px;
-  padding: 14px 28px;
+  padding: 0 24px;
+  height: 60px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -11,33 +12,66 @@ nav {
 }
 
 .nav-logo {
-  font-weight: 700;
-  font-size: 1.25rem;
+  font-weight: 800;
+  font-size: 1.2rem;
   color: var(--accent);
-  letter-spacing: -0.5px;
-  margin-right: auto;
+  letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .nav-logo span { color: var(--text); }
 
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 4px;
+}
+
 .nav-tab {
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   border: none;
   background: none;
+  white-space: nowrap;
 }
-.nav-tab:hover { background: var(--surface-2); color: var(--text); }
-.nav-tab.active { background: var(--surface-2); color: var(--accent-2); }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  background: var(--surface-3);
+  color: var(--accent-2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
 
-.nav-avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+.nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.nav-refresh {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; font-weight: 700; color: white;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.3s;
+}
+.nav-refresh:hover { background: var(--surface-3); color: var(--text); }
+.nav-refresh.spinning { transform: rotate(360deg); }
+
+@media (max-width: 500px) {
+  nav { padding: 0 12px; }
+  .nav-tab { padding: 7px 14px; font-size: 0.82rem; }
 }

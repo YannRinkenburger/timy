@@ -42,7 +42,7 @@ main {
 .btn-ghost:hover { background: var(--surface-3); color: var(--text); }
 
 /* Tags */
-.tag-uni    { background: rgba(224,85,85,0.15);  color: var(--tag-uni); }
+.tag-uni    { background: rgba(222,109,32,0.15);  color: var(--tag-uni); }
 .tag-work   { background: rgba(92,133,160,0.15); color: var(--tag-work); }
 .tag-privat { background: rgba(140,140,140,0.15); color: var(--tag-privat); }
 
